@@ -13,17 +13,20 @@ public:
   Vector* m_prev[2] = {nullptr, nullptr};
   char m_op;
   std::function<void()> _backward = [&]() {};
+  std::string m_label;
 
-  Vector(T value)
+  Vector(T value, std::string name="-")
   {
     this->m_data = value;
+    this->m_label = name;
   }
-  Vector(T value, Vector* a, Vector* b, char op)
+  Vector(T value, Vector* a, Vector* b, char op, std::string name="-")
   {
     this->m_prev[0] = a;
     this->m_prev[1] = b;
     this->m_data = value;
     this->m_op = op;
+    this->m_label = name;
   }
 
   Vector operator+(Vector& other)
@@ -95,22 +98,21 @@ template<typename T>
 void print(Vector<T>& vector)
 {
   if(vector.m_prev[0] and vector.m_prev[1]){
-    std::cout << vector.m_data << " (grad:"<<vector.m_grad << ")"<<" got from: " << vector.m_prev[0]->m_data << vector.m_op << vector.m_prev[1]->m_data << std::endl;
+    std::cout << vector.m_label << " : " << vector.m_data << " (grad:"<<vector.m_grad << ")"<<" got from: " << vector.m_prev[0]->m_label<< vector.m_op << vector.m_prev[1]->m_label << std::endl;
     print(*vector.m_prev[0]);
     print(*vector.m_prev[1]);
   }
   else
-    std::cout << vector.m_data <<" (grad:"<<vector.m_grad<< ") "<<"got from: -"<<std::endl;
+    std::cout << vector.m_label << " : " << vector.m_data <<" (grad:"<<vector.m_grad<< ")" <<std::endl;
 }
 
 int main()
 {
- Vector<float> a = 2, b = 3, d = 2;
- Vector<float> c = (a + b);
- Vector<float> e = c * d;
- 
- e.backward();
- print(e);
+  Vector<float> a(2,"a"), b(3,"b"), d(4,"d"), f(1,"f");
+  Vector<float> e = (a+b) * d * f; e.m_label = "e";
 
- return 0;
+// e.backward();
+
+  print(e);
+  return 0;
 }

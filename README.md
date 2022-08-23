@@ -9,8 +9,7 @@ Nice TODO
 Usage
 -----
 ```c++
-Vector<float> a = 2;
-Vector<float> b = 3;
+Vector<float> a = 2, b = 3;
 Vector<float> c = a + b;
 Vector<float> d = 2;
 Vector<float> e = c * d;

@@ -9,15 +9,18 @@ Nice TODO
 Usage
 -----
 ```c++
-Vector<float> a = 2, b = 3;
+Vector<float> a = 2; 
+Vector<float> b(4, "b");
 Vector<float> c = a + b;
-Vector<float> d = 2;
-Vector<float> e = c * d;
 
-e.print(); // prints the value of e and its parent vectors (c and d)
-e.backward(); // backpropagation; updates all the gradients accordingly
+Vector<float> d = ((a*b).pow(c)) + a;
 
-std::cout << c.m_grad << std::endl; // prints the gradient of c; 
+a.m_label="a"; c.m_label="c"; d.m_label="d";
+
+d.backward(); // backpropagation; updates all the gradients accordingly
+d.print(); // recursively prints the whole chain of operations up to e; including data & gradients
+
+std::cout << a.m_grad << std::endl; // prints only the gradient of vector a
 ```
 Implementation
 -----

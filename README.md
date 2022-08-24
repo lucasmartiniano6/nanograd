@@ -18,7 +18,7 @@ Vector<float> d = ((a*b).pow(c)) + a;
 a.m_label="a"; c.m_label="c"; d.m_label="d";
 
 d.backward(); // backpropagation; updates all the gradients accordingly
-d.print(); // recursively prints the whole chain of operations up to e; including data & gradients
+d.print(); // recursively prints the whole chain of operations up to d; including data & gradients
 
 std::cout << a.m_grad << std::endl; // prints only the gradient of vector a
 ```

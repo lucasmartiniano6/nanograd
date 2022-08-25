@@ -1,12 +1,14 @@
 #include <cmath>
-#include <iostream>
+#include <string>
+#include <map>
+#include <stack>
 
 template<typename T>
 class Vector
 {
 public:
   T m_data;
-  float m_grad = 0.0;
+  double m_grad = 0.0;
   Vector* m_prev[2] = {nullptr, nullptr};
   std::string m_op = "";
   std::string m_label = "";
@@ -31,15 +33,39 @@ public:
     return out;
   }
 
+  Vector operator+(Vector&& other)
+  {
+    Vector<T> out(this->m_data + other.m_data, this, &other,"+");
+    return out;
+  }
+
   Vector operator*(Vector& other)
   {
     Vector<T> out(this->m_data * other.m_data, this, &other, "*");
     return out;
   }
 
+  Vector operator*(Vector&& other)
+  {
+    Vector<T> out(this->m_data * other.m_data, this, &other, "*");
+    return out;
+  }
+
+  Vector operator/(Vector& other)
+  {
+    Vector<T> out(this->m_data * (1/other.m_data), this, &other, "/");
+    return out;
+  }
+
   Vector pow(Vector& other)
   {
     Vector<T> out(std::pow(this->m_data,other.m_data), this, &other, "^");  
+    return out;
+  }
+
+  Vector tanh()
+  {
+    Vector<T> out(std::tanh(this->m_data), this, nullptr, "tanh");
     return out;
   }
 
@@ -57,6 +83,13 @@ public:
       this->m_prev[0]->m_grad += this->m_grad * this->m_prev[1]->m_data * std::pow(this->m_prev[0]->m_data,this->m_prev[1]->m_data-1);
       this->m_prev[1]->m_grad += this->m_grad * std::pow(this->m_prev[0]->m_data,this->m_prev[1]->m_data) * std::log(this->m_prev[0]->m_data);
     }
+    else if(this->m_op == "/"){
+      this->m_prev[0]->m_grad += this->m_grad * (1/this->m_prev[1]->m_data);
+      this->m_prev[1]->m_grad += this->m_grad * (-1 * this->m_prev[0]->m_data)/(std::pow(this->m_prev[1]->m_data,2));
+    }
+    else if(this->m_op == "tanh"){
+      this->m_prev[0]->m_grad += this->m_grad * (1-std::pow(this->m_data,2));
+    }
     else return;
 
     // recursion
@@ -71,32 +104,3 @@ public:
   }
 
 };
-
-template<typename T>
-void print(Vector<T>& vector)
-{
-  if(vector.m_prev[0] and vector.m_prev[1]){
-    std::cout << vector.m_label << " : " << vector.m_data << " (grad:"<<vector.m_grad << ")"
-    << " got from: " << vector.m_prev[0]->m_label << vector.m_op << vector.m_prev[1]->m_label << std::endl;
-    print(*vector.m_prev[0]);
-    print(*vector.m_prev[1]);
-  }
-  else
-    std::cout << vector.m_label << " : " << vector.m_data <<" (grad:"<<vector.m_grad<< ")" << std::endl;
-}
-
-int main()
-{
-  Vector<float> a = 2; 
-  Vector<float> b(4, "b");
-  Vector<float> c = a + b;
-
-  Vector<float> d = ((a*b).pow(c)) + a;
-
-  a.m_label="a"; c.m_label="c"; d.m_label="d";
-
-  d.backward();
-  print(d);
-
-  return 0;
-}

@@ -90,17 +90,38 @@ public:
     else if(this->m_op == "tanh"){
       this->m_prev[0]->m_grad += this->m_grad * (1-std::pow(this->m_data,2));
     }
-    else return;
+  }
+  
+  std::stack<Vector<T>*> dfs(Vector<T>* vertex)
+  {
+    static std::map<Vector<T>*,bool> visited;
+    static std::stack<Vector<T>*> order;
 
-    // recursion
-    if (this->m_prev[0]) this->m_prev[0]->_backwardUtil();
-    if (this->m_prev[1]) this->m_prev[1]->_backwardUtil();
+    if(visited[vertex]) return order;
+
+    visited[vertex] = true;
+
+    if(vertex->m_prev[0]) dfs(vertex->m_prev[0]);
+    if(vertex->m_prev[1]) dfs(vertex->m_prev[1]);
+
+    order.push(vertex);
+
+    return order;
   }
 
   void backward()
   {
     this->m_grad = 1.0; 
-    _backwardUtil();
+   
+    std::stack<Vector<T>*> order;
+    order = dfs(this);
+
+    while(!order.empty()){
+      Vector<T>* v = order.top();
+      order.pop();
+
+      v->_backwardUtil();      
+    }
   }
 
 };
